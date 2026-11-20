@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fibonacci &amp; The Golden Ratio: Past Simple vs. Past Perfect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream-bg: #FAF6EE;
+      --paper-card: #FFFDF9;
+      --navy-deep: #1E293B;
+      --gold-primary: #C59B27;
+      --gold-dark: #926C15;
+      --emerald-ok: #059669;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cream-bg);
+      color: var(--navy-deep);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(197, 155, 39, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(30, 58, 138, 0.06) 0%, transparent 45%);
+    }
+
+    .font-serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Subtle mathematical sketchbook grid pattern */
+    .math-grid {
+      background-size: 28px 28px;
+      background-image:
+        linear-gradient(to right, rgba(180, 145, 70, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(180, 145, 70, 0.08) 1px, transparent 1px);
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 14px -2px rgba(30, 41, 59, 0.07), 0 1px 3px 0 rgba(30, 41, 59, 0.04);
+    }
+
+    .card-selected {
+      border-color: #D97706 !important;
+      background-color: #FFFBEB !important;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25), 0 10px 20px -5px rgba(217, 119, 6, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .card-matched {
+      border-color: #10B981 !important;
+      background-color: #ECFDF5 !important;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .animate-shake {
+      animation: shake 0.42s ease-in-out;
+      border-color: #EF4444 !important;
+      background-color: #FEF2F2 !important;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.96) translateY(6px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .animate-pop {
+      animation: popIn 0.28s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen math-grid antialiased selection:bg-amber-200 selection:text-slate-900">
+
+  <!-- Top Header Bar -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-amber-200/80 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <!-- Golden Spiral SVG Icon -->
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white shadow-md shrink-0">
+          <svg viewBox="0 0 48 48" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="6" y="10" width="36" height="28" rx="3" stroke-opacity="0.65" />
+            <line x1="28" y1="10" x2="28" y2="38" stroke-opacity="0.65" />
+            <line x1="28" y1="27" x2="42" y2="27" stroke-opacity="0.65" />
+            <path d="M 6 38 A 22 22 0 0 1 28 10 A 14 14 0 0 1 42 27 A 8 8 0 0 1 34 38 A 5 5 0 0 1 28 32" stroke="#FFFBEB" stroke-width="2.8" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="font-serif-title text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+              Fibonacci &amp; The Golden Ratio (<span class="text-amber-700">&varphi;</span>): Past Simple vs. Past Perfect
+            </h1>
+            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+              Professor Chris  &amp; Fibonacci
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Connect each illustrated Fibonacci &amp; Golden Ratio fact with its correct <strong>Past Simple</strong> or <strong>Past Perfect</strong> continuation.
+          </p>
+        </div>
+      </div>
+
+      <!-- Controls and Metrics -->
+      <div class="flex items-center justify-between md:justify-end gap-2 sm:gap-3 flex-wrap">
+        <div class="flex items-center gap-2 bg-amber-50/90 border border-amber-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm">
+          <span class="text-slate-600">Matched:</span>
+          <strong id="scoreDisplay" class="text-emerald-700 font-bold text-base">0 / 12</strong>
+          <span class="text-slate-300">|</span>
+          <span class="text-slate-600">Attempts:</span>
+          <strong id="attemptsDisplay" class="text-slate-800 font-semibold">0</strong>
+        </div>
+
+        <button
+          id="toggleGuideBtn"
+          type="button"
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-amber-100 hover:bg-slate-700 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+        >
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span>Grammar Guide</span>
+        </button>
+
+        <button
+          id="shuffleBtn"
+          type="button"
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-amber-50 hover:border-amber-400 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+          title="Shuffle right-hand cards in the current set"
+        >
+          <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>Reset Round</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Grammar Reference Banner -->
+    <div id="grammarGuidePanel" class="hidden border-t border-amber-200 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-slate-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+        <div class="bg-slate-800/90 border border-sky-500/30 rounded-xl p-3.5">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-xs">PAST SIMPLE (V2 / -ed)</span>
+            <span class="text-slate-300 font-medium">Completed past actions &amp; specific dates</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed mb-2">
+            Used for completed actions in chronological order or events tied to a specific past time (<em>in 1202, in 1611, when, after</em>).
+          </p>
+          <p class="text-amber-300 italic bg-slate-900/60 px-2.5 py-1.5 rounded-lg border border-slate-700">
+            "In 1202, Fibonacci <strong>published</strong> <em>Liber Abaci</em>."
+          </p>
+        </div>
+
+        <div class="bg-slate-800/90 border border-amber-500/30 rounded-xl p-3.5">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-xs">PAST PERFECT (had + V3)</span>
+            <span class="text-slate-300 font-medium">The "past before the past"</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed mb-2">
+            Used for an earlier action that happened <strong>before</strong> another past event or deadline (signal words: <em>before, by the time, until, already, even though</em>).
+          </p>
+          <p class="text-amber-300 italic bg-slate-900/60 px-2.5 py-1.5 rounded-lg border border-slate-700">
+            "Before he wrote the book, he <strong>had traveled</strong> across North Africa."
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+
+    <!-- Set Navigation (12 items split into 2 sets of 6 for clean curved SVG connections) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 bg-white/85 border border-amber-200/90 rounded-2xl p-3.5 shadow-sm">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button
+          id="round1Btn"
+          type="button"
+          class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer bg-amber-600 text-white shadow-sm"
+        >
+          Set 1: History &amp; The Rabbit Problem (1–6)
+        </button>
+        <button
+          id="round2Btn"
+          type="button"
+          class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100"
+        >
+          Set 2: Nature, Art &amp; The Golden Ratio &varphi; (7–12)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs text-slate-600">
+        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-800 font-bold">1</span>
+        <span>Select an illustrated fact</span>
+        <span class="text-amber-500 font-bold">&rarr;</span>
+        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-800 font-bold">2</span>
+        <span>Select its verb clause</span>
+      </div>
+    </div>
+
+    <!-- Pedagogical Feedback Banner -->
+    <div
+      id="feedbackBanner"
+      class="mb-5 rounded-2xl border border-amber-200 bg-[#FFFDF9] p-4 shadow-sm transition-all duration-300"
+      aria-live="polite"
+    >
+      <div class="flex items-start gap-3">
+        <div id="feedbackIcon" class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <h2 id="feedbackTitle" class="text-sm sm:text-base font-bold text-slate-800">
+              Ready to connect! Select an illustrated card on the left or a clause on the right.
+            </h2>
+            <span id="feedbackBadge" class="hidden text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
+          </div>
+          <p id="feedbackText" class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+            Examine the illustration and the opening clause, then choose the ending on the right that completes the historical or mathematical fact using <strong>Past Simple</strong> or <strong>Past Perfect</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matching Board with SVG Connector Overlay -->
+    <div id="matchingBoard" class="relative">
+      <!-- SVG Overlay for curved Bezier lines -->
+      <svg
+        id="connectionsSvg"
+        class="pointer-events-none absolute inset-0 w-full h-full z-10 overflow-visible"
+      ></svg>
+
+      <!-- Two-Column Layout -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-10 lg:gap-14 relative z-20">
+        <!-- Left Column: Illustrated Fibonacci Facts -->
+        <div class="md:col-span-6 space-y-3.5">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              Column A: Illustrated Facts (Sentence Beginnings)
+            </h3>
+            <span id="roundProgressBadge" class="text-xs font-semibold text-slate-500">0 / 6 matched</span>
+          </div>
+          <div id="leftColumn" class="space-y-3.5"></div>
+        </div>
+
+        <!-- Right Column: Past Simple / Past Perfect Continuations -->
+        <div class="md:col-span-6 space-y-3.5 mt-4 md:mt-0">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+              Column B: Continuations (Past Simple vs. Past Perfect)
+            </h3>
+            <span class="text-xs text-slate-400 hidden sm:inline">Click or tap to match</span>
+          </div>
+          <div id="rightColumn" class="space-y-3.5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion Celebration Modal / Summary Card -->
+    <div
+      id="completionCard"
+      class="hidden mt-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 text-white p-6 sm:p-8 shadow-xl border border-amber-400/40 animate-pop"
+    >
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-700/80">
+        <div class="space-y-2">
+          <span class="inline-block px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-400/30">
+            &varphi; &approx; 1.6180339887... Challenge Complete!
+          </span>
+          <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-amber-50">
+            Excellent Work! You Mastered Fibonacci &amp; Past Narrative Tenses
+          </h2>
+          <p id="finalSummaryText" class="text-sm sm:text-base text-slate-300 max-w-3xl">
+            You connected all 12 historical and mathematical facts using Past Simple and Past Perfect.
+          </p>
+        </div>
+        <div class="shrink-0">
+          <button
+            id="restartAllBtn"
+            type="button"
+            class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-lg transition cursor-pointer"
+          >
+            Play Again (Shuffle All 12)
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary of all 12 Grammar Rules -->
+      <div class="mt-6">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-3">
+          Complete Grammar &amp; Math Review (All 12 Rules)
+        </h3>
+        <div id="allRulesList" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 py-6 text-center text-xs text-slate-500">
+    Now put a 10 to Chris for making this web ;D 
+  </footer>
+
+  <script>
+    /**
+     * Bank of 12 illustrated historical & mathematical items on Fibonacci and the Golden Ratio (φ ≈ 1.618).
+     */
+    const FIBONACCI_PAIRS = [
+      // ==================== SET 1: HISTORY & THE RABBIT PROBLEM (1-6) ====================
+      {
+        id: 1,
+        round: 1,
+        tag: "1170–1200 · Mediterranean Voyages",
+        leftText: "Before Leonardo of Pisa returned to Italy in 1200,",
+        rightText: "he had learned the Hindu-Arabic numeral system from Arab mathematicians.",
+        tense: "Past Perfect",
+        explanationEn: "<strong>Past Perfect (had learned)</strong> is correct because learning the numeral system happened <em>before</em> his return to Italy in 1200 (signaled by <em>Before</em>).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#FEF3C7"/>
+            <path d="M10 56 Q28 48 40 56 T70 56 L70 72 L10 72 Z" fill="#0284C7" opacity="0.25"/>
+            <path d="M18 52 L62 52 L54 64 L26 64 Z" fill="#92400E"/>
+            <line x1="40" y1="20" x2="40" y2="52" stroke="#78350F" stroke-width="3"/>
+            <path d="M40 22 L60 44 L40 44 Z" fill="#FFFBEB" stroke="#D97706" stroke-width="1.8"/>
+            <path d="M38 25 L22 44 L38 44 Z" fill="#FDE68A" stroke="#D97706" stroke-width="1.8"/>
+            <circle cx="22" cy="20" r="6" fill="#F59E0B"/>
+          </svg>
+        `
+      },
+      {
+        id: 2,
+        round: 1,
+        tag: "1202 · Liber Abaci",
+        leftText: "In 1202, Fibonacci published Liber Abaci,",
+        rightText: "and introduced the famous sequence to Western Europe.",
+        tense: "Past Simple",
+        explanationEn: "<strong>Past Simple (introduced)</strong> is correct because it describes a sequential, completed historical event at a specific past date (<em>In 1202</em>).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#E0F2FE"/>
+            <rect x="20" y="14" width="40" height="52" rx="4" fill="#FFFBEB" stroke="#B45309" stroke-width="2.5"/>
+            <rect x="20" y="14" width="8" height="52" rx="2" fill="#D97706"/>
+            <text x="44" y="34" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#78350F" font-family="serif">LIBER</text>
+            <text x="44" y="44" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#78350F" font-family="serif">ABACI</text>
+            <text x="44" y="57" text-anchor="middle" font-size="8" font-weight="bold" fill="#0369A1">1202</text>
+          </svg>
+        `
+      },
+      {
+        id: 3,
+        round: 1,
+        tag: "Roman Numerals vs. New Digits",
+        leftText: "Until merchants adopted the new digits,",
+        rightText: "European scholars had calculated everything using Roman numerals.",
+        tense: "Past Perfect",
+        explanationEn: "<strong>Past Perfect (had calculated)</strong> is correct because calculating with Roman numerals was an ongoing practice <em>prior to</em> the turning point signaled by <em>Until</em>.",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#F3E8FF"/>
+            <rect x="12" y="18" width="25" height="44" rx="5" fill="#E2E8F0" stroke="#64748B" stroke-width="1.8"/>
+            <text x="24.5" y="37" text-anchor="middle" font-size="10" font-weight="bold" fill="#475569">XII</text>
+            <text x="24.5" y="51" text-anchor="middle" font-size="9" font-weight="bold" fill="#475569">MCIV</text>
+            <path d="M39 40 L45 40" stroke="#7E22CE" stroke-width="2.5" stroke-linecap="round"/>
+            <rect x="46" y="18" width="23" height="44" rx="5" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+            <text x="57.5" y="37" text-anchor="middle" font-size="11" font-weight="bold" fill="#B45309">1, 2</text>
+            <text x="57.5" y="51" text-anchor="middle" font-size="11" font-weight="bold" fill="#B45309">3, 5</text>
+          </svg>
+        `
+      },
+      {
+        id: 4,
+        round: 1,
+        tag: "The Rabbit Population Puzzle",
+        leftText: "In his famous thought experiment, Fibonacci asked how many pairs of rabbits",
+        rightText: "a single pair produced over twelve months.",
+        tense: "Past Simple",
+        explanationEn: "<strong>Past Simple (produced)</strong> is correct because it describes the main narrative action inside Fibonacci's classic 12-month problem.",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#ECFDF5"/>
+            <ellipse cx="34" cy="24" rx="4" ry="12" transform="rotate(-12 34 24)" fill="#FFF" stroke="#059669" stroke-width="2"/>
+            <ellipse cx="46" cy="24" rx="4" ry="12" transform="rotate(12 46 24)" fill="#FFF" stroke="#059669" stroke-width="2"/>
+            <circle cx="40" cy="42" r="13" fill="#FFF" stroke="#059669" stroke-width="2"/>
+            <circle cx="35.5" cy="40" r="2" fill="#064E3B"/>
+            <circle cx="44.5" cy="40" r="2" fill="#064E3B"/>
+            <circle cx="40" cy="45" r="2.2" fill="#F43F5E"/>
+            <text x="40" y="68" text-anchor="middle" font-size="9" font-weight="bold" fill="#047857">1, 1, 2, 3, 5</text>
+          </svg>
+        `
+      },
+      {
+        id: 5,
+        round: 1,
+        tag: "Month 12 · 144 Rabbit Pairs",
+        leftText: "By the time the twelfth month ended,",
+        rightText: "the rabbit population had grown to 144 pairs.",
+        tense: "Past Perfect",
+        explanationEn: "<strong>Past Perfect (had grown)</strong> is correct because <em>By the time</em> indicates a result completed before a specific past deadline (the end of month 12).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#FFF7ED"/>
+            <rect x="16" y="14" width="48" height="52" rx="7" fill="#FFF" stroke="#EA580C" stroke-width="2"/>
+            <rect x="16" y="14" width="48" height="14" rx="5" fill="#EA580C"/>
+            <text x="40" y="24" text-anchor="middle" font-size="8" font-weight="bold" fill="#FFF">MONTH 12</text>
+            <text x="40" y="46" text-anchor="middle" font-size="16" font-weight="bold" fill="#9A3412">144</text>
+            <text x="40" y="59" text-anchor="middle" font-size="8" font-weight="bold" fill="#C2410C">PAIRS</text>
+          </svg>
+        `
+      },
+      {
+        id: 6,
+        round: 1,
+        tag: "Ancient India · Sanskrit Poetry",
+        leftText: "Long before Fibonacci described the sequence in Europe,",
+        rightText: "Indian mathematicians had already discovered it in Sanskrit poetry.",
+        tense: "Past Perfect",
+        explanationEn: "<strong>Past Perfect (had already discovered)</strong> is correct because scholars in India discovered the pattern centuries <em>before</em> Fibonacci wrote about it (<em>Long before</em>).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#FEF2F2"/>
+            <path d="M18 22 C18 16, 62 16, 62 22 L62 58 C62 64, 18 64, 18 58 Z" fill="#FDE68A" stroke="#B45309" stroke-width="2"/>
+            <line x1="26" y1="30" x2="54" y2="30" stroke="#92400E" stroke-width="2" stroke-linecap="round"/>
+            <line x1="26" y1="39" x2="50" y2="39" stroke="#92400E" stroke-width="2" stroke-linecap="round"/>
+            <line x1="26" y1="48" x2="54" y2="48" stroke="#92400E" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="57" cy="55" r="8" fill="#DC2626"/>
+            <text x="57" y="58" text-anchor="middle" font-size="9" font-weight="bold" fill="#FFF">&varphi;</text>
+          </svg>
+        `
+      },
+
+      // ==================== SET 2: NATURE, ART & THE GOLDEN RATIO φ (7-12) ====================
+      {
+        id: 7,
+        round: 2,
+        tag: "1611 · Johannes Kepler & φ ≈ 1.618",
+        leftText: "In 1611, astronomer Johannes Kepler noticed that",
+        rightText: "consecutive Fibonacci ratios approached the Golden Ratio (1.618).",
+        tense: "Past Simple",
+        explanationEn: "<strong>Past Simple (approached / noticed)</strong> is correct because it describes a historical discovery made at a specific past date (<em>In 1611</em>).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#1E293B"/>
+            <circle cx="40" cy="40" r="24" fill="none" stroke="#FBBF24" stroke-width="1.8" stroke-dasharray="4 3"/>
+            <text x="40" y="37" text-anchor="middle" font-size="18" font-weight="bold" fill="#FDE68A" font-family="serif">&varphi;</text>
+            <text x="40" y="52" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#38BDF8">&approx; 1.618</text>
+            <circle cx="62" cy="20" r="2" fill="#FFF"/>
+            <circle cx="20" cy="22" r="1.5" fill="#FDE68A"/>
+          </svg>
+        `
+      },
+      {
+        id: 8,
+        round: 2,
+        tag: "1509 · Luca Pacioli & Da Vinci",
+        leftText: "Before Kepler linked the sequence to &varphi;,",
+        rightText: "Luca Pacioli and Leonardo da Vinci had already written De Divina Proportione.",
+        tense: "Past Perfect",
+        explanationEn: "<strong>Past Perfect (had already written)</strong> is correct because Pacioli and Da Vinci completed their treatise in 1509, more than a century <em>before</em> Kepler's 1611 observation.",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#FEF3C7"/>
+            <polygon points="40,14 64,29 56,58 24,58 16,29" fill="#FFFBEB" stroke="#B45309" stroke-width="2.2"/>
+            <polygon points="40,14 56,58 16,29 64,29 24,58" fill="none" stroke="#D97706" stroke-width="1.5"/>
+            <text x="40" y="71" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#78350F">1509 &bull; &varphi;</text>
+          </svg>
+        `
+      },
+      {
+        id: 9,
+        round: 2,
+        tag: "Phyllotaxis · Sunflower Seed Spirals",
+        leftText: "When botanists counted the seed spirals on a sunflower,",
+        rightText: "they found two consecutive Fibonacci numbers: 34 and 55.",
+        tense: "Past Simple",
+        explanationEn: "<strong>Past Simple (found)</strong> is correct because it expresses the immediate sequential discovery after counting the spirals (<em>When botanists counted...</em>).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#FEF9C3"/>
+            <circle cx="40" cy="40" r="26" fill="#FACC15" stroke="#CA8A04" stroke-width="2"/>
+            <circle cx="40" cy="40" r="15" fill="#713F12"/>
+            <circle cx="36" cy="36" r="1.6" fill="#FDE047"/>
+            <circle cx="44" cy="36" r="1.6" fill="#FDE047"/>
+            <circle cx="40" cy="40" r="1.6" fill="#FDE047"/>
+            <circle cx="36" cy="44" r="1.6" fill="#FDE047"/>
+            <circle cx="44" cy="44" r="1.6" fill="#FDE047"/>
+            <text x="40" y="74" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#854D0E">34 &amp; 55</text>
+          </svg>
+        `
+      },
+      {
+        id: 10,
+        round: 2,
+        tag: "Botany · Pinecone Spiral Scales",
+        leftText: "After students had examined several pinecones in class,",
+        rightText: "they realized the spirals followed the pattern 8 and 13.",
+        tense: "Past Simple",
+        explanationEn: "<strong>Past Simple (realized)</strong> is correct for the main event that happened <em>after</em> the earlier completed action (<em>After students had examined...</em>).",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#DCFCE7"/>
+            <ellipse cx="40" cy="42" rx="16" ry="22" fill="#92400E" stroke="#78350F" stroke-width="2"/>
+            <path d="M27 34 L53 48 M27 48 L53 34 M31 26 L49 56 M49 26 L31 56" stroke="#FDE68A" stroke-width="1.8" stroke-linecap="round"/>
+            <text x="40" y="16" text-anchor="middle" font-size="9" font-weight="bold" fill="#166534">8 &amp; 13</text>
+          </svg>
+        `
+      },
+      {
+        id: 11,
+        round: 2,
+        tag: "1875 · Édouard Lucas Names the Sequence",
+        leftText: "In 1875, French mathematician Édouard Lucas named the sequence after Fibonacci",
+        rightText: "even though Fibonacci had never used that name himself.",
+        tense: "Past Perfect",
+        explanationEn: "<strong>Past Perfect (had never used)</strong> is correct because it describes a fact that remained true during Fibonacci's lifetime, centuries <em>prior to</em> 1875.",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#E0E7FF"/>
+            <circle cx="40" cy="32" r="12" fill="#FDE68A" stroke="#4338CA" stroke-width="2"/>
+            <path d="M22 64 C22 50, 58 50, 58 64" fill="#4F46E5"/>
+            <circle cx="36" cy="30" r="1.5" fill="#1E1B4B"/>
+            <circle cx="44" cy="30" r="1.5" fill="#1E1B4B"/>
+            <path d="M36 36 Q40 39 44 36" fill="none" stroke="#1E1B4B" stroke-width="1.5"/>
+            <text x="40" y="74" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#312E81">1875: É. Lucas</text>
+          </svg>
+        `
+      },
+      {
+        id: 12,
+        round: 2,
+        tag: "Classical Architecture · The Parthenon",
+        leftText: "When classical architects designed the Parthenon,",
+        rightText: "they applied balanced proportions close to the Golden Ratio.",
+        tense: "Past Simple",
+        explanationEn: "<strong>Past Simple (applied)</strong> is correct because it narrates a completed historical action carried out during the building's design.",
+        svg: `
+          <svg viewBox="0 0 80 80" class="w-full h-full">
+            <rect width="80" height="80" rx="14" fill="#F1F5F9"/>
+            <polygon points="40,16 14,30 66,30" fill="#CBD5E1" stroke="#475569" stroke-width="2"/>
+            <rect x="20" y="30" width="6" height="28" fill="#E2E8F0" stroke="#475569" stroke-width="1.6"/>
+            <rect x="32" y="30" width="6" height="28" fill="#E2E8F0" stroke="#475569" stroke-width="1.6"/>
+            <rect x="44" y="30" width="6" height="28" fill="#E2E8F0" stroke="#475569" stroke-width="1.6"/>
+            <rect x="54" y="30" width="6" height="28" fill="#E2E8F0" stroke="#475569" stroke-width="1.6"/>
+            <rect x="14" y="58" width="52" height="6" rx="1" fill="#94A3B8" stroke="#475569" stroke-width="1.6"/>
+            <rect x="14" y="16" width="52" height="48" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="3 2"/>
+          </svg>
+        `
+      }
+    ];
+
+    // Application State
+    let currentRound = 1;
+    let selectedLeftId = null;
+    let selectedRightId = null;
+    let matchedIds = new Set();
+    let attempts = 0;
+    let rightOrderByRound = { 1: [], 2: [] };
+
+    // DOM References
+    const leftColumnEl = document.getElementById("leftColumn");
+    const rightColumnEl = document.getElementById("rightColumn");
+    const connectionsSvgEl = document.getElementById("connectionsSvg");
+    const matchingBoardEl = document.getElementById("matchingBoard");
+    const scoreDisplayEl = document.getElementById("scoreDisplay");
+    const attemptsDisplayEl = document.getElementById("attemptsDisplay");
+    const roundProgressBadgeEl = document.getElementById("roundProgressBadge");
+    const feedbackBannerEl = document.getElementById("feedbackBanner");
+    const feedbackIconEl = document.getElementById("feedbackIcon");
+    const feedbackTitleEl = document.getElementById("feedbackTitle");
+    const feedbackTextEl = document.getElementById("feedbackText");
+    const feedbackBadgeEl = document.getElementById("feedbackBadge");
+    const completionCardEl = document.getElementById("completionCard");
+    const finalSummaryTextEl = document.getElementById("finalSummaryText");
+    const allRulesListEl = document.getElementById("allRulesList");
+
+    // Fisher-Yates shuffle
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Initialize shuffled right-hand card orders per set
+    function initRoundOrders() {
+      [1, 2].forEach((r) => {
+        const items = FIBONACCI_PAIRS.filter((p) => p.round === r);
+        rightOrderByRound[r] = shuffleArray(items.map((i) => i.id));
+      });
+    }
+
+    // Populate summary of all 12 rules inside completion card
+    function renderAllRulesSummary() {
+      allRulesListEl.innerHTML = FIBONACCI_PAIRS.map(
+        (item) => `
+          <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-amber-200">#${item.id} &bull; ${item.tag}</span>
+              <span class="px-2 py-0.5 rounded font-bold text-[10px] ${
+                item.tense === "Past Perfect"
+                  ? "bg-amber-400/20 text-amber-300 border border-amber-400/30"
+                  : "bg-sky-400/20 text-sky-300 border border-sky-400/30"
+              }">${item.tense}</span>
+            </div>
+            <p class="text-slate-100 font-medium">"${item.leftText} ${item.rightText}"</p>
+            <p class="text-slate-400 leading-relaxed">${item.explanationEn}</p>
+          </div>
+        `
+      ).join("");
+    }
+
+    // Update top counters & completion modal
+    function updateStats() {
+      scoreDisplayEl.textContent = `${matchedIds.size} / ${FIBONACCI_PAIRS.length}`;
+      attemptsDisplayEl.textContent = attempts;
+
+      const roundItems = FIBONACCI_PAIRS.filter((p) => p.round === currentRound);
+      const roundMatchedCount = roundItems.filter((p) => matchedIds.has(p.id)).length;
+      roundProgressBadgeEl.textContent = `${roundMatchedCount} / ${roundItems.length} matched`;
+
+      if (matchedIds.size === FIBONACCI_PAIRS.length) {
+        renderAllRulesSummary();
+        completionCardEl.classList.remove("hidden");
+        const accuracy = attempts > 0 ? Math.round((FIBONACCI_PAIRS.length / attempts) * 100) : 100;
+        finalSummaryTextEl.innerHTML = `You matched all <strong>12 pairs</strong> in <strong>${attempts} attempts</strong> (<strong>${accuracy}%</strong> accuracy). Review every timeline rule below or play again with shuffled cards.`;
+      } else {
+        completionCardEl.classList.add("hidden");
+      }
+    }
+
+    // Update pedagogical feedback banner
+    function setFeedback(type, title, htmlMessage, tenseBadge = null) {
+      feedbackBannerEl.className = "mb-5 rounded-2xl border p-4 shadow-sm transition-all duration-300";
+
+      if (type === "success") {
+        feedbackBannerEl.classList.add("border-emerald-300", "bg-emerald-50/90");
+        feedbackIconEl.className = "w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5";
+        feedbackIconEl.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+        feedbackTitleEl.className = "text-sm sm:text-base font-bold text-emerald-950";
+      } else if (type === "error") {
+        feedbackBannerEl.classList.add("border-rose-300", "bg-rose-50/90");
+        feedbackIconEl.className = "w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 mt-0.5";
+        feedbackIconEl.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`;
+        feedbackTitleEl.className = "text-sm sm:text-base font-bold text-rose-950";
+      } else {
+        feedbackBannerEl.classList.add("border-amber-200", "bg-[#FFFDF9]");
+        feedbackIconEl.className = "w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5";
+        feedbackIconEl.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+        feedbackTitleEl.className = "text-sm sm:text-base font-bold text-slate-800";
+      }
+
+      feedbackTitleEl.textContent = title;
+      feedbackTextEl.innerHTML = htmlMessage;
+
+      if (tenseBadge) {
+        feedbackBadgeEl.classList.remove("hidden");
+        if (tenseBadge === "Past Perfect") {
+          feedbackBadgeEl.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950 border border-amber-400";
+        } else {
+          feedbackBadgeEl.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-200 text-sky-950 border border-sky-400";
+        }
+        feedbackBadgeEl.textContent = tenseBadge;
+      } else {
+        feedbackBadgeEl.classList.add("hidden");
+      }
+    }
+
+    // Render left and right columns for active set
+    function renderBoard() {
+      const roundItems = FIBONACCI_PAIRS.filter((p) => p.round === currentRound);
+      const rightOrderedItems = rightOrderByRound[currentRound].map((id) =>
+        roundItems.find((item) => item.id === id)
+      );
+
+      // Left Column
+      leftColumnEl.innerHTML = "";
+      roundItems.forEach((item) => {
+        const isMatched = matchedIds.has(item.id);
+        const isSelected = selectedLeftId === item.id;
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.dataset.leftId = item.id;
+        card.disabled = isMatched;
+        card.className = `w-full text-left rounded-2xl border-2 p-3 sm:p-3.5 transition-all duration-200 flex items-center gap-3.5 card-shadow cursor-pointer relative ${
+          isMatched
+            ? "card-matched cursor-default"
+            : isSelected
+            ? "card-selected"
+            : "bg-[#FFFDF9] border-amber-200/90 hover:border-amber-400 hover:bg-amber-50/40"
+        }`;
+
+        card.innerHTML = `
+          <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-amber-200/70 shadow-inner bg-white">
+            ${item.svg}
+          </div>
+          <div class="flex-1 min-w-0 pr-2">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-[11px] font-bold uppercase tracking-wide text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-md">
+                #${item.id} &bull; ${item.tag}
+              </span>
+              ${
+                isMatched
+                  ? `<span class="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">&check; Matched</span>`
+                  : ""
+              }
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-slate-800 leading-snug">
+              ${item.leftText}
+            </p>
+          </div>
+          <!-- Right Anchor Dot -->
+          <span class="anchor-left hidden md:block w-3.5 h-3.5 rounded-full border-2 shrink-0 ${
+            isMatched
+              ? "bg-emerald-500 border-emerald-700"
+              : isSelected
+              ? "bg-amber-500 border-amber-700 scale-125"
+              : "bg-amber-100 border-amber-400"
+          }"></span>
+        `;
+
+        card.addEventListener("click", () => handleSelectLeft(item.id));
+        leftColumnEl.appendChild(card);
+      });
+
+      // Right Column
+      rightColumnEl.innerHTML = "";
+      rightOrderedItems.forEach((item) => {
+        const isMatched = matchedIds.has(item.id);
+        const isSelected = selectedRightId === item.id;
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.dataset.rightId = item.id;
+        card.disabled = isMatched;
+        card.className = `w-full text-left rounded-2xl border-2 p-3.5 sm:p-4 transition-all duration-200 flex items-center gap-3 card-shadow cursor-pointer min-h-[84px] sm:min-h-[96px] ${
+          isMatched
+            ? "card-matched cursor-default"
+            : isSelected
+            ? "card-selected"
+            : "bg-white border-slate-200 hover:border-amber-400 hover:bg-amber-50/40"
+        }`;
+
+        card.innerHTML = `
+          <!-- Left Anchor Dot -->
+          <span class="anchor-right hidden md:block w-3.5 h-3.5 rounded-full border-2 shrink-0 ${
+            isMatched
+              ? "bg-emerald-500 border-emerald-700"
+              : isSelected
+              ? "bg-amber-500 border-amber-700 scale-125"
+              : "bg-slate-100 border-slate-400"
+          }"></span>
+          <div class="flex-1 min-w-0">
+            ${
+              isMatched
+                ? `<div class="mb-1">
+                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                      item.tense === "Past Perfect"
+                        ? "bg-amber-200/80 text-amber-950"
+                        : "bg-sky-200/80 text-sky-950"
+                    }">${item.tense}</span>
+                  </div>`
+                : ""
+            }
+            <p class="text-xs sm:text-sm font-medium text-slate-800 leading-snug">
+              ... ${item.rightText}
+            </p>
+          </div>
+        `;
+
+        card.addEventListener("click", () => handleSelectRight(item.id));
+        rightColumnEl.appendChild(card);
+      });
+
+      updateStats();
+      requestAnimationFrame(drawConnections);
+    }
+
+    // Draw curved Bezier lines connecting matched pairs
+    function drawConnections() {
+      connectionsSvgEl.innerHTML = "";
+      if (window.innerWidth < 768) return;
+
+      const boardRect = matchingBoardEl.getBoundingClientRect();
+      const roundItems = FIBONACCI_PAIRS.filter((p) => p.round === currentRound);
+
+      roundItems.forEach((item) => {
+        if (!matchedIds.has(item.id)) return;
+
+        const leftCard = leftColumnEl.querySelector(`[data-left-id="${item.id}"]`);
+        const rightCard = rightColumnEl.querySelector(`[data-right-id="${item.id}"]`);
+        if (!leftCard || !rightCard) return;
+
+        const leftAnchor = leftCard.querySelector(".anchor-left") || leftCard;
+        const rightAnchor = rightCard.querySelector(".anchor-right") || rightCard;
+
+        const lRect = leftAnchor.getBoundingClientRect();
+        const rRect = rightAnchor.getBoundingClientRect();
+
+        const x1 = lRect.left + lRect.width / 2 - boardRect.left;
+        const y1 = lRect.top + lRect.height / 2 - boardRect.top;
+        const x2 = rRect.left + rRect.width / 2 - boardRect.left;
+        const y2 = rRect.top + rRect.height / 2 - boardRect.top;
+
+        const dx = Math.abs(x2 - x1) * 0.5;
+        const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#10B981");
+        path.setAttribute("stroke-width", "3");
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("opacity", "0.85");
+
+        connectionsSvgEl.appendChild(path);
+      });
+    }
+
+    // Handle left selection
+    function handleSelectLeft(id) {
+      if (matchedIds.has(id)) return;
+      selectedLeftId = selectedLeftId === id ? null : id;
+      if (selectedLeftId !== null && selectedRightId !== null) {
+        evaluatePair();
+      } else {
+        renderBoard();
+      }
+    }
+
+    // Handle right selection
+    function handleSelectRight(id) {
+      if (matchedIds.has(id)) return;
+      selectedRightId = selectedRightId === id ? null : id;
+      if (selectedLeftId !== null && selectedRightId !== null) {
+        evaluatePair();
+      } else {
+        renderBoard();
+      }
+    }
+
+    // Evaluate selected pair
+    function evaluatePair() {
+      attempts++;
+      const leftItem = FIBONACCI_PAIRS.find((p) => p.id === selectedLeftId);
+      const rightItem = FIBONACCI_PAIRS.find((p) => p.id === selectedRightId);
+
+      if (leftItem && rightItem && leftItem.id === rightItem.id) {
+        matchedIds.add(leftItem.id);
+        selectedLeftId = null;
+        selectedRightId = null;
+
+        setFeedback(
+          "success",
+          `Correct Match! (${leftItem.tag})`,
+          `<span class="block text-slate-900 font-medium mb-1">"${leftItem.leftText} ${leftItem.rightText}"</span>${leftItem.explanationEn}`,
+          leftItem.tense
+        );
+        renderBoard();
+      } else {
+        const badLeft = leftColumnEl.querySelector(`[data-left-id="${selectedLeftId}"]`);
+        const badRight = rightColumnEl.querySelector(`[data-right-id="${selectedRightId}"]`);
+        if (badLeft) badLeft.classList.add("animate-shake");
+        if (badRight) badRight.classList.add("animate-shake");
+
+        setFeedback(
+          "error",
+          "Not quite a match! Check the historical timeline and verb tense.",
+          "Look closely at the order of events: did the second action happen <strong>earlier</strong> than another past event (<em>Past Perfect: had + past participle</em>), or is it a completed action in chronological order (<em>Past Simple</em>)?"
+        );
+
+        const prevLeft = selectedLeftId;
+        const prevRight = selectedRightId;
+        selectedLeftId = null;
+        selectedRightId = null;
+        updateStats();
+
+        setTimeout(() => {
+          const elL = leftColumnEl.querySelector(`[data-left-id="${prevLeft}"]`);
+          const elR = rightColumnEl.querySelector(`[data-right-id="${prevRight}"]`);
+          if (elL) elL.classList.remove("animate-shake");
+          if (elR) elR.classList.remove("animate-shake");
+          renderBoard();
+        }, 450);
+      }
+    }
+
+    // Switch between Set 1 and Set 2
+    function switchRound(roundNum) {
+      currentRound = roundNum;
+      selectedLeftId = null;
+      selectedRightId = null;
+
+      const r1Btn = document.getElementById("round1Btn");
+      const r2Btn = document.getElementById("round2Btn");
+
+      if (roundNum === 1) {
+        r1Btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer bg-amber-600 text-white shadow-sm";
+        r2Btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100";
+      } else {
+        r2Btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer bg-amber-600 text-white shadow-sm";
+        r1Btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100";
+      }
+
+      renderBoard();
+    }
+
+    // Button Event Listeners
+    document.getElementById("round1Btn").addEventListener("click", () => switchRound(1));
+    document.getElementById("round2Btn").addEventListener("click", () => switchRound(2));
+
+    document.getElementById("toggleGuideBtn").addEventListener("click", () => {
+      document.getElementById("grammarGuidePanel").classList.toggle("hidden");
+      requestAnimationFrame(drawConnections);
+    });
+
+    document.getElementById("shuffleBtn").addEventListener("click", () => {
+      const roundItems = FIBONACCI_PAIRS.filter((p) => p.round === currentRound);
+      roundItems.forEach((item) => matchedIds.delete(item.id));
+      rightOrderByRound[currentRound] = shuffleArray(roundItems.map((i) => i.id));
+      selectedLeftId = null;
+      selectedRightId = null;
+      setFeedback(
+        "info",
+        `Set ${currentRound} reset and shuffled!`,
+        "Select any illustrated card on the left and its matching verb clause on the right."
+      );
+      renderBoard();
+    });
+
+    document.getElementById("restartAllBtn").addEventListener("click", () => {
+      matchedIds.clear();
+      attempts = 0;
+      selectedLeftId = null;
+      selectedRightId = null;
+      initRoundOrders();
+      switchRound(1);
+      setFeedback(
+        "info",
+        "All 12 cards reset and shuffled! Select a card to begin.",
+        "Connect each illustrated Fibonacci & Golden Ratio fact with its correct Past Simple or Past Perfect continuation."
+      );
+    });
+
+    // Redraw SVG lines on window resize or scroll
+    window.addEventListener("resize", () => requestAnimationFrame(drawConnections));
+    window.addEventListener("scroll", () => requestAnimationFrame(drawConnections), { passive: true });
+
+    // Initial boot
+    initRoundOrders();
+    renderBoard();
+  </script>
+</body>
+</html>
